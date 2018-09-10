@@ -4,7 +4,7 @@ This codebase is a TensorFlow implementation of our ECCV-2018 paper:
 
 [Recovering 3D Planes from a Single Image via Convolutional Neural Networks](https://faculty.ist.psu.edu/zzhou/paper/ECCV18-plane.pdf)
 
-[Fengting Yang](https://scholar.google.at/citations?user=0vWtvs0AAAAJ&hl=en), [Zihan Zhou](https://faculty.ist.psu.edu/zzhou/Home.html)
+[Fengting Yang](http://personal.psu.edu/fuy34/), [Zihan Zhou](https://faculty.ist.psu.edu/zzhou/Home.html)
 
 Please contact Fengting Yang (fuy34@psu.edu) if you have any question.
 
