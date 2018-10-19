@@ -55,28 +55,28 @@ def plane_pred_net(tgt_image, num_plane, is_training=True):
                 i4_in  = tf.concat([upcnv4, cnv3b], axis=3)
                 icnv4  = slim.conv2d(i4_in, 128, [3, 3], stride=1, scope='icnv4')
                 segm4  = SCALING * slim.conv2d(icnv4, num_plane + 1,   [3, 3], stride=1,
-                        activation_fn=None, normalizer_fn=None, scope='segm4') + BIAS                 # 4*24*40*(1+n)
+                        activation_fn=None, normalizer_fn=None, scope='disp4') + BIAS                 # 4*24*40*(1+n)
                 segm4_up = tf.image.resize_bilinear(segm4, [np.int(H/4), np.int(W/4)])
 
                 upcnv3 = slim.conv2d_transpose(icnv4, 64,  [3, 3], stride=2, scope='upcnv3')           # 4*48*80*64
                 i3_in  = tf.concat([upcnv3, cnv2b, segm4_up], axis=3)
                 icnv3  = slim.conv2d(i3_in, 64,  [3, 3], stride=1, scope='icnv3')
                 segm3  = SCALING * slim.conv2d(icnv3, num_plane + 1,   [3, 3], stride=1,               #4*48*80*(1+n)
-                    activation_fn=None, normalizer_fn=None, scope='segm3') + BIAS
+                    activation_fn=None, normalizer_fn=None, scope='disp3') + BIAS
                 segm3_up = tf.image.resize_bilinear(segm3, [np.int(H/2), np.int(W/2)])
 
                 upcnv2 = slim.conv2d_transpose(icnv3, 32,  [3, 3], stride=2, scope='upcnv2')            # 4*96*160*32
                 i2_in  = tf.concat([upcnv2, cnv1b, segm3_up], axis=3)
                 icnv2  = slim.conv2d(i2_in, 32,  [3, 3], stride=1, scope='icnv2')
                 segm2  = SCALING * slim.conv2d(icnv2, num_plane + 1,   [3, 3], stride=1,                 #4*96*160*(n+1)
-                    activation_fn=None, normalizer_fn=None, scope='segm2') + BIAS
+                    activation_fn=None, normalizer_fn=None, scope='disp2') + BIAS
                 segm2_up = tf.image.resize_bilinear(segm2, [H, W])
 
                 upcnv1 = slim.conv2d_transpose(icnv2, 16,  [3, 3], stride=2, scope='upcnv1')            #4*192*320*16
                 i1_in  = tf.concat([upcnv1, segm2_up], axis=3)
                 icnv1  = slim.conv2d(i1_in, 16,  [3, 3], stride=1, scope='icnv1')                       #4*192*320*(n+1)
                 segm1  = SCALING * slim.conv2d(icnv1, num_plane + 1,   [3, 3], stride=1,
-                    activation_fn=None, normalizer_fn=None, scope='segm1') + BIAS
+                    activation_fn=None, normalizer_fn=None, scope='disp1') + BIAS
 
             end_points = utils.convert_collection_to_dict(end_points_collection)
             return param_final, [segm1, segm2, segm3, segm4], end_points
