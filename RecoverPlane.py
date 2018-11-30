@@ -149,17 +149,22 @@ class RecoverPlane(object):
 
 
     def compute_plane_reg_loss(self, pred_in, ref):
+        # eq 5 in paper
+        # - max to ensure exp() will not explode to inf
         pred = pred_in - tf.reduce_max(pred_in, axis=-1,keep_dims=True)
         pred_plane_only = pred[:, :, :, :-1]
+        # numerical stable implement of
         # plane_mask = tf.reduce_logsumexp(pred_plane_only, axis=-1) - tf.reduce_logsumexp(pred, axis=-1)
+        # ensure log() will not explode to -inf
         pred_plane_only_max = tf.reduce_max(pred_plane_only, axis=-1,keep_dims=True)
 
         plane_mask = tf.reduce_logsumexp(pred_plane_only - pred_plane_only_max, axis=-1,keep_dims=True) + \
                             pred_plane_only_max - tf.reduce_logsumexp(pred, axis=-1,keep_dims=True)
-
+        # combine non plane and plane log(P_pred) together
         non_plane_mask = pred[:, :, :, -1:] - tf.reduce_logsumexp(pred, axis=-1,keep_dims=True)
         curr_pred_mask = tf.concat([non_plane_mask, plane_mask], axis=3)
-
+        
+        # caclulate the cross entropy and return
         return  -tf.reduce_mean(tf.reduce_sum(ref * curr_pred_mask, axis=-1) )
 
 
