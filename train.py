@@ -14,6 +14,8 @@ Recovering 3D Planes from a Single Image via Convolutional Neural Networks
 The code was tested on Tensorflow 1.4.1.
 As Tensorflow changed the tf.app.flags module in higher version, related modification is required.
 
+if the default weight does not works for your for any reason
+try 0.08 0.092 0.11 0.13, or a line search in [0.08, 0.13] may be help 
 '''
 
 from __future__ import division
