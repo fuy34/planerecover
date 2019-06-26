@@ -112,7 +112,7 @@ class SYNTHIA_data_loader(object):
         f_y= f_x
         c_x =  np.genfromtxt([C[2]]) #C[2].split("\n")
         c_y =  np.genfromtxt([C[4]]) #C[4].split("\n")
-        intrinsics = np.array([f_x, f_y, c_x, c_y]) #np.genfromtxt([f_x, c_x, f_y, c_y])
+        intrinsics = np.array([f_x,  c_x,  f_y,c_y]) #np.genfromtxt([f_x, c_x, f_y, c_y])
 
         return intrinsics
 
