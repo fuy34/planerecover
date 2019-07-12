@@ -48,7 +48,9 @@ We provide test code to generate: 1) plane segmentation (and its visualization) 
 ```
 python test_SYNTHIA.py --dataset=<SYNTHIA_DUMP_Filtered_DIR> --output_dir=<TEST_OUTPUT_DIR> --test_list=<Tst_100.txt in SYNTHIA_DUMP_DIR> --ckpt_file=<TRAINED_MODEL>
 ```
-Note: we use the ```filtered data``` as input instead of the ```pre-processed``` one (to preserve the resolution of the ground truth depth). If you do not want to do the pre-processing and already download our data, you can simply modify the path related to the dataset in ```test_SYNTHIA.py```. The final result may not be exactly the same as ours, but should be similar.
+Note: 
+1. We use the ```filtered data``` as input instead of the ```pre-processed``` one (to preserve the resolution of the ground truth depth). If you do not want to do the pre-processing and already download our data, you can simply modify the path related to the dataset in ```test_SYNTHIA.py```. The final result may not be exactly the same as ours, but should be similar.
+2. We intentionally do not include seq.22 in our training to test the model performance in a video sequence. That is why this sequence is missing in the provided training/test data. The ```filtered seq.22``` (without pre-processing) can be download [here](https://psu.box.com/s/9rpxfa8zasy95ia5u0ol0wxm6qj9i7s8).
 
 ## Evaluation
 We also provide the MATLAB code for evaluation of plane segmentation accuracy:
