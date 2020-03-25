@@ -59,7 +59,7 @@ Note:
 1. We use the ```filtered data``` as input instead of the ```pre-processed``` one (to preserve the resolution of the ground truth depth). 
 If you do not want to do the pre-processing and already download our data, you can simply modify the path related to the dataset in ```test_SYNTHIA.py```.
 The final result may not be exactly the same as ours, but should be similar. And please set ```--use_preprocessed=True``` at testing time.
-2. We intentionally exinclude seq.22 in our training to test the model performance in a video sequence. That is why this sequence is missing in the provided training/test data. The ```filtered seq.22``` (without pre-processing) can be download [here](https://psu.box.com/s/9rpxfa8zasy95ia5u0ol0wxm6qj9i7s8).
+2. We intentionally exinclude seq.22 in our training to test the model performance in a video clip. That is why this sequence is missing in the provided training/test data. We can run the same test by downloading the ```filtered seq.22``` (without pre-processing) [here](https://psu.box.com/s/9rpxfa8zasy95ia5u0ol0wxm6qj9i7s8) and generate a test list accordingly.
 
 
 ## Evaluation
