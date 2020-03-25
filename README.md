@@ -12,7 +12,7 @@ Please contact Fengting Yang (fuy34@psu.edu) if you have any question.
 This codebase was developed and tested with python 2.7, Tensorflow 1.4.1, CUDA 8.0.61 and Ubuntu 16.04.
 
 ## Preparing training data
-[Here](https://psu.box.com/s/6ds04a85xqf3ud3uljjxnedmux169ebf) we provide our training and testing data on [SYNTHIA](http://synthia-dataset.net/) dataset. Once you download the training data, you can set the training data path as <SYNTHIA_DUMP_DIR> in training command and start to train the network. 
+[Here](https://psu.box.com/s/6ds04a85xqf3ud3uljjxnedmux169ebf) we provide our training and testing data on [SYNTHIA](http://synthia-dataset.net/) dataset. Once you download the training data, you can set the training data path as ```<SYNTHIA_DUMP_DIR> ``` in training command and start to train the network. 
 
 If you wish to generate the training data by yourself, you may want to follow the following steps.
 
@@ -46,12 +46,21 @@ A pre-trained model has been included in the folder named "pre_trained_model", a
 ## Testing
 We provide test code to generate: 1) plane segmentation (and its visualization) and 2) depth prediction (planar area only). The evaluation of the depth prediction accuracy will be presented right after the test process. Please run
 ```
-python test_SYNTHIA.py --dataset=<SYNTHIA_DUMP_Filtered_DIR> --output_dir=<TEST_OUTPUT_DIR> --test_list=<Tst_100.txt in SYNTHIA_DUMP_DIR> --ckpt_file=<TRAINED_MODEL>
+python test_SYNTHIA.py --dataset=<SYNTHIA_DUMP_Filtered_DIR or SYNTHIA_DUMP_DIR> --output_dir=<TEST_OUTPUT_DIR> --test_list=<Tst_100.txt in SYNTHIA_DUMP_DIR> --ckpt_file=<TRAINED_MODEL> --use_preprocessed=<True if use our preprocessed dataset, otherwise False>
 ```
+We also provide code to generate planar 3D model. Please run 
+```
+cd eval
+python generate3D.py --dataset=<SYNTHIA_DUMP_Filtered_DIR or SYNTHIA_DUMP_DIR> --pred_depth=<TEST_OUTPUT_DIR/depth> --savepath=<PATH_TO_SAVE_PLY> --test_list=<Tst_100.txt in SYNTHIA_DUMP_DIR> --use_preprocessed=<True if use our preprocessed dataset, otherwise False>
+```
+The point cloud of the ```.ply``` file for the planar model should be viewed in ```<PATH_TO_SAVE_PLY>``` . You can visualize it through MeshLab directly. 
+
 Note: 
-1. We use the ```filtered data``` as input instead of the ```pre-processed``` one (to preserve the resolution of the ground truth depth). If you do not want to do the pre-processing and already download our data, you can simply modify the path related to the dataset in ```test_SYNTHIA.py```. The final result may not be exactly the same as ours, but should be similar.
+1. We use the ```filtered data``` as input instead of the ```pre-processed``` one (to preserve the resolution of the ground truth depth). 
+If you do not want to do the pre-processing and already download our data, you can simply modify the path related to the dataset in ```test_SYNTHIA.py```.
+The final result may not be exactly the same as ours, but should be similar. And please set ```--use_preprocessed=True``` at testing time.
 2. We intentionally exinclude seq.22 in our training to test the model performance in a video sequence. That is why this sequence is missing in the provided training/test data. The ```filtered seq.22``` (without pre-processing) can be download [here](https://psu.box.com/s/9rpxfa8zasy95ia5u0ol0wxm6qj9i7s8).
-3. The code to generate planar 3D model is updated ```eval/generate3D.py```. It should works once all the hard-code path is set correctly according to your local environment. The output will be ```.ply``` file, which can be visualized in MeshLab directly. 
+
 
 ## Evaluation
 We also provide the MATLAB code for evaluation of plane segmentation accuracy:

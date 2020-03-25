@@ -14,7 +14,7 @@ from RecoverPlane import RecoverPlane
 '''
 Test the train result on SYNTHIA (for params)
 @author -- Fengting Yang 
-@finaly modified time -- Mar.11 2018
+@finaly modified time -- Mar.24 2020
 
 @usage:
     test the train result(param) with depth prediction metric. 
@@ -35,12 +35,16 @@ flags = tf.app.flags
 flags.DEFINE_integer("batch_size", 4, "The size of of a sample batch")
 flags.DEFINE_integer("img_height", 192, "Image height") 
 flags.DEFINE_integer("img_width", 320, "Image width")
-flags.DEFINE_integer("num_plane",5, "Image width")
+flags.DEFINE_integer("num_plane",5, "plane number")
+flags.DEFINE_boolean("use_preprocessed", True, 'if use the propocessed data we provided for test' )
 flags.DEFINE_string("dataset_dir", '', "Filtered Dataset directory")
 flags.DEFINE_string("output_dir", '', "Output directory")
+flags.DEFINE_string("gpu", "0", "GPU ID")
 flags.DEFINE_string("test_list", 'data_pre_processing/SYNTHIA/tst_100.txt', "Test list")
 flags.DEFINE_string("ckpt_file", 'pre_trained_model/synthia_498000', "checkpoint file")
 FLAGS = flags.FLAGS
+
+os.environ['CUDA_VISIBLE_DEVICES'] = FLAGS.gpu
 
 intrinsics =  np.array(([[133.185088,0.,160.000000], [ 0., 134.587036,96.000000], [0., 0., 1.]]))
 focalLength_x =133.185075
@@ -202,14 +206,21 @@ def main(_):
         test_files = f.readlines()
         for t in test_files:
             t_split = t[:-1].split()
-            test_files_list.append(FLAGS.dataset_dir + '/' + t_split[0] +'/images/'+ t_split[-1] + '.png' )
-            depth_file_list.append(FLAGS.dataset_dir + '/' + t_split[0] +'/depth/'+ t_split[-1] + '.png')
+
+            if not FLAGS.use_preprocessed:
+                # use these two lines only if you preprocessed the dataset from scratch
+                test_files_list.append(FLAGS.dataset_dir + '/' + t_split[0] +'/images/'+ t_split[-1] + '.png' )
+                depth_file_list.append(FLAGS.dataset_dir + '/' + t_split[0] +'/depth/'+ t_split[-1] + '.png')
+            else:
+                # use these two lines if you use our preprocessed dataset
+                if t_split[0] == '22': # seq 22 is not available in our preprocessed dataset, see README for more details
+                    continue
+                test_files_list.append(FLAGS.dataset_dir + '/' + t_split[0] +'/'+ t_split[-1] + '.jpg' )
+                depth_file_list.append(FLAGS.dataset_dir + '/' + t_split[0] +'/'+ t_split[-1] + '_depth.png')
 
     if not os.path.exists(FLAGS.output_dir):
         os.makedirs(FLAGS.output_dir)
     basename = os.path.basename(FLAGS.ckpt_file)
-    # output_file_masks = FLAGS.output_dir + '/masks_' + basename
-    # output_file_params = FLAGS.output_dir + '/params_' + basename
 
     # to ensure the consistant color map
     default_top_five_colors = [(0.8, 0.0, 1.0), (0.8, 1.0, 0.0), (0.0, 1.0, 0.4), (1.0, 0.0, 0.0), (0.0, 0.4, 1.0)]
@@ -217,8 +228,7 @@ def main(_):
         colors = default_top_five_colors
     else:
         # Generate random colors
-        colors = random_colors(
-            FLAGS.num_plane)  # [(0.8, 0.0, 1.0), (0.8, 1.0, 0.0), (0.0, 1.0, 0.4), (1.0, 0.0, 0.0), (0.0, 0.4, 1.0)]
+        colors = random_colors( FLAGS.num_plane)
         cnt = 0
         for i in default_top_five_colors:
             if i not in colors:
@@ -226,7 +236,7 @@ def main(_):
                 cnt += 1
 
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
     planeRecover = RecoverPlane()
     planeRecover.setup_inference(img_height=FLAGS.img_height,
                         img_width=FLAGS.img_width,
@@ -291,9 +301,13 @@ def main(_):
 
 
                 name = test_files_list[idx].split('/')
+                if not FLAGS.use_preprocessed:
+                    pic_name = name[-3] + '_' + name[-1]
+                else:
+                    pic_name = name[-2] + '_' + name[-1].replace('.jpg', '.png')
+
                 visual_path = FLAGS.output_dir + '/plane_sgmts_vis/'
                 eval_mask_path = FLAGS.output_dir + '/plane_sgmts/'
-                pic_name = name[-3] + '_' + name[-1]
 
                 if not os.path.exists(visual_path):
                     os.makedirs(visual_path)
@@ -313,6 +327,7 @@ def main(_):
                 plane_area = cv2.resize(combined_mask, dsize=(gt_width, gt_height),interpolation=cv2.INTER_NEAREST)
                 pred_depth_save = masked_pred_depth
 
+
                 mask = np.logical_and(gt_depth > MIN_DEPTH,
                                       gt_depth < MAX_DEPTH)
 
@@ -321,8 +336,12 @@ def main(_):
                 pred_depth_save = pred_depth_save * mask * 100
 
                 seq = depth_file_list[idx].split('/')
-                seq_id = seq[-3]
-                name_id = seq[-1]
+                if not FLAGS.use_preprocessed:
+                    seq_id = seq[-3]
+                    name_id = seq[-1]
+                else:
+                    seq_id = seq[-2]
+                    name_id = seq[-1].replace('_depth.png', '.png')
 
                 if not os.path.exists(FLAGS.output_dir + '/depth/' ):
                     os.makedirs(FLAGS.output_dir + '/depth/' )
